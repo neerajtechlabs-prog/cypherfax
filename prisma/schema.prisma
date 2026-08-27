@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RefreshTokenStatus {
+  active
+  revoked
+}
+
+model UserUsage {
+  userId             String   @id
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId             String
+  pagesUsedThisMonth Int      @default(0)
+  billingCycleStart  DateTime @default(now())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String?        @unique
+  phone        String?        @unique
+  googleId     String?        @unique
+  name         String?
+  passwordHash String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  usage        UserUsage?
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id         String              @id @default(cuid())
+  userId     String
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashedToken String             @unique
+  project    String              @default("default")
+  status     RefreshTokenStatus  @default(active)
+  deviceInfo String?
+  ipAddress  String?
+  createdAt  DateTime            @default(now())
+  expiresAt  DateTime
+
+  @@index([userId, status])
+  @@index([project, status])
+}
+
+model OtpCode {
+  id          String   @id @default(cuid())
+  contact     String
+  project     String   @default("default")
+  purpose     String
+  hashedOtp   String
+  attemptCount Int     @default(0)
+  maxAttempts Int     @default(3)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([contact, project])
+  @@index([contact, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  contact   String?
+  project   String   @default("default")
+  success   Boolean
+  reason    String?
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
