@@ -7,6 +7,7 @@ import { UsageService } from '../usage/usage.service'
 import { PlansService } from '../plans/plans.service'
 import { FaxDispatchService } from './fax-dispatch/fax-dispatch.service'
 import { PDFDocument } from 'pdf-lib'
+import 'multer'
 
 @Injectable()
 export class FaxService {
@@ -94,11 +95,4 @@ export class FaxService {
     }
   }
 
-  async sendFaxFromUrl(fileUrl: string, toNumber: string) {
-    if (!fileUrl || !toNumber) {
-      throw new BadRequestException('fileUrl and toNumber are required')
-    }
-
-    return this.faxDispatchService.sendFax({ fileUrl, toNumber })
-  }
 }

@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { PrismaModule } from './prisma/prisma.module'
 import { AuthModule } from './auth/auth.module'
-import { UploadModule } from './upload/upload.module'
 import { FaxModule } from './fax/fax.module'
 import { UsageModule } from './usage/usage.module'
 import { PlansModule } from './plans/plans.module'
@@ -26,7 +25,6 @@ import { HealthModule } from './health/health.module'
     PlansModule,
     UsageModule,
     AuthModule,
-    UploadModule,
     FaxModule,
     HealthModule,
   ],

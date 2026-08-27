@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "start": "node dist/main.js",
+    "start:dev": "ts-node src/main.ts"
   },
   "keywords": [],
   "author": "",

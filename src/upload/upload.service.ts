@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { randomUUID } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
+import 'multer'
 
 type UploadFileLike = Partial<Express.Multer.File> & {
   type?: string

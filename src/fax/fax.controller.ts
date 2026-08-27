@@ -13,9 +13,9 @@ import {
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Request } from 'express'
+import 'multer'
 import { AccessTokenGuard } from '../auth/guards/access-token.guard'
 import { FaxService } from './fax.service'
-import { FaxDispatchService } from './fax-dispatch/fax-dispatch.service'
 
 @Controller('fax')
 export class FaxController {
@@ -52,25 +52,4 @@ export class FaxController {
     return this.faxService.uploadAndSend(file, toNumber, planId, req.user.userId, origin)
   }
 
-  @Post('send')
-  @UseGuards(AccessTokenGuard)
-  @HttpCode(HttpStatus.OK)
-  async send(
-    @Req() req: Request & { user?: { userId: string; project: string } },
-    @Body() body: { fileUrl?: string; toNumber?: string },
-  ) {
-    if (!req.user) {
-      throw new BadRequestException('Unauthorized.')
-    }
-
-    try {
-      return await this.faxService.sendFaxFromUrl(body.fileUrl ?? '', body.toNumber ?? '')
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error
-      throw new InternalServerErrorException({
-        error: 'Fax send failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      })
-    }
-  }
 }

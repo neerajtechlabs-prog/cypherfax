@@ -236,7 +236,46 @@ export class AuthService {
       userAgent,
     })
 
-    return { success: true, contact, project }
+    let user = contactType === 'email'
+      ? await this.prisma.user.findUnique({ where: { email: contact } })
+      : await this.prisma.user.findUnique({ where: { phone: contact } })
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: contactType === 'email' ? { email: contact } : { phone: contact },
+      })
+    }
+
+    const accessToken = signAccessToken({
+      userId: user.id,
+      project,
+      email: user.email ?? undefined,
+      phoneNumber: user.phone ?? undefined,
+    })
+    const refreshToken = signRefreshToken({ userId: user.id, project })
+
+    await this.prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        hashedToken: await bcrypt.hash(refreshToken, 10),
+        project,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        ipAddress: ipAddress ?? null,
+        deviceInfo: userAgent ?? null,
+      },
+    })
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        name: user.name,
+        project,
+      },
+    }
   }
 
   async googleLogin(payload: { idToken: string; project?: string }, ipAddress?: string | null, userAgent?: string | null) {
